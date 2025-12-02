@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ lst.name }} – Einkaufszettel</title>
+  </head>
+  <body>
+    <h1>{{ lst.name }}</h1>
+    <p>
+      Status:
+      {% if lst.active %}
+        <strong>Aktiv</strong>
+      {% else %}
+        <strong>Archiviert</strong>
+      {% endif %}
+    </p>
+    
+    <p>
+      <a href="{{ url_for('list_catalog', list_id=lst.id) }}">
+        Aus vorhandenen Artikeln mit +/- hinzufügen
+      </a>
+    </p>
+
+
+    <p><a href="{{ url_for('index') }}">Zur Übersicht</a></p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul style="color: red;">
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% if lst.active %}
+      <h2>Neue Position hinzufügen</h2>
+      <form method="post" action="{{ url_for('add_item', list_id=lst.id) }}">
+        <input type="text" name="description" placeholder="Artikel">
+        <input type="text" name="quantity" placeholder="Menge (optional)">
+        <button type="submit">Hinzufügen</button>
+      </form>
+    {% else %}
+      <p>Archivierte Listen können nicht direkt bearbeitet werden. Erstelle eine Kopie in der Übersicht.</p>
+    {% endif %}
+
+    <h2>Positionen</h2>
+    <ul>
+      {% for item in lst.items %}
+        <li>
+          {{ item.description }}
+          {% if item.quantity %} ({{ item.quantity }}){% endif %}
+          <form method="post" action="{{ url_for('delete_item', item_id=item.id) }}" style="display:inline;">
+            <button type="submit">Löschen</button>
+          </form>
+        </li>
+      {% else %}
+        <li>Keine Positionen.</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
+

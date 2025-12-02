@@ -1,0 +1,39 @@
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: einkauf
+  labels:
+    app: einkauf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: einkauf
+  template:
+    metadata:
+      labels:
+        app: einkauf
+    spec:
+      containers:
+        - name: einkauf
+          # Anpassung: Namespace ggf. ändern
+          image: image-registry.openshift-image-registry.svc:5000/einkaufsdemo/einkauf:latest
+          imagePullPolicy: Always
+          env:
+            - name: DB_PATH
+              value: /data/shopping.db
+          ports:
+            - containerPort: 8080
+              name: http
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /data
+      volumes:
+        - name: sqlite-data
+          persistentVolumeClaim:
+            claimName: einkauf-sqlite
+
+
+

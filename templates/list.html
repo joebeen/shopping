@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ lst.name }} – Einkaufszettel</title>
+  </head>
+  <body>
+    <h1>Einkaufsliste: {{ lst.name }}</h1>
+
+    <p><a href="{{ url_for('index') }}">Zur Übersicht</a></p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <table border="1" cellpadding="4" cellspacing="0">
+          <tr>
+            <th>Hinweise / Meldungen</th>
+          </tr>
+          {% for msg in messages %}
+            <tr>
+              <td style="color: red;">{{ msg }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+        <br>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Status- und Metadaten-Tabelle -->
+    <h2>Status &amp; Details</h2>
+    <table border="1" cellpadding="4" cellspacing="0">
+      <tr>
+        <th>Status</th>
+        <th>Erstellt am</th>
+        <th>Archiviert am</th>
+      </tr>
+      <tr>
+        <td>
+          {% if lst.active %}
+            Aktiv
+          {% else %}
+            Archiviert
+          {% endif %}
+        </td>
+        <td>
+          {% if lst.created_at %}
+            {{ lst.created_at.strftime("%d.%m.%Y %H:%M") }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>
+          {% if lst.archived_at %}
+            {{ lst.archived_at.strftime("%d.%m.%Y %H:%M") }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+
+    <br>
+
+    <!-- Aktionen auf Listen-Ebene (Archivieren / Reaktivieren, Katalog, Umbenennen) -->
+    <h2>Aktionen für diese Liste</h2>
+    <table border="1" cellpadding="4" cellspacing="0">
+      <tr>
+        <th>Aktion</th>
+        <th>Beschreibung</th>
+      </tr>
+      <tr>
+        <td>Artikel-Katalog nutzen</td>
+        <td>
+          <a href="{{ url_for('list_catalog', list_id=lst.id) }}">
+            Aus vorhandenen Artikeln mit +/- hinzufügen
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Liste umbenennen</td>
+        <td>
+          <form method="post" action="{{ url_for('rename_list_route', list_id=lst.id) }}">
+            <input type="text" name="new_name" value="{{ lst.name }}" size="40">
+            <button type="submit">Umbenennen</button>
+          </form>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          {% if lst.active %}
+            Liste archivieren
+          {% else %}
+            Liste reaktivieren
+          {% endif %}
+        </td>
+        <td>
+          {% if lst.active %}
+            <form method="post" action="{{ url_for('archive_list', list_id=lst.id) }}">
+              <button type="submit">Archivieren</button>
+            </form>
+          {% else %}
+            <form method="post" action="{{ url_for('activate_list', list_id=lst.id) }}">
+              <button type="submit">Reaktivieren</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+
+    <br>
+
+    <!-- Neue Position hinzufügen (nur wenn aktiv) -->
+    {% if lst.active %}
+      <h2>Neue Position hinzufügen</h2>
+      <table border="1" cellpadding="4" cellspacing="0">
+        <tr>
+          <th>Artikel</th>
+          <th>Menge</th>
+          <th>Aktion</th>
+        </tr>
+        <tr>
+          <form method="post" action="{{ url_for('add_item', list_id=lst.id) }}">
+            <td>
+              <input type="text" name="description" placeholder="Artikel" size="40">
+            </td>
+            <td>
+              <input type="number" name="quantity" value="1" min="1" style="width: 60px;">
+            </td>
+            <td>
+              <button type="submit">Hinzufügen</button>
+            </td>
+          </form>
+        </tr>
+      </table>
+    {% else %}
+      <h2>Bearbeitung</h2>
+      <table border="1" cellpadding="4" cellspacing="0">
+        <tr>
+          <th>Hinweis</th>
+        </tr>
+        <tr>
+          <td>Archivierte Listen können nicht direkt bearbeitet werden. Erstelle eine Kopie oder reaktiviere die Liste.</td>
+        </tr>
+      </table>
+    {% endif %}
+
+    <br>
+
+    <!-- Positions-Tabelle -->
+    <h2>Positionen in dieser Einkaufsliste</h2>
+    <table border="1" cellpadding="4" cellspacing="0">
+      <tr>
+        <th>#</th>
+        <th>Artikel</th>
+        <th>Menge</th>
+        <th>Aktionen</th>
+      </tr>
+      {% if lst.items %}
+        {% for item in lst.items %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ item.description }}</td>
+            <td style="text-align: right;">{{ item.quantity }}</td>
+            <td>
+              <form method="post" action="{{ url_for('delete_item', item_id=item.id) }}" style="display:inline;">
+                <button type="submit">Löschen</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="4">Keine Positionen vorhanden.</td>
+        </tr>
+      {% endif %}
+    </table>
+
+  </body>
+</html>

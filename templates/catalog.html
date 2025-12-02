@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <title>Artikelkatalog – {{ lst.name }}</title>
+  </head>
+  <body>
+    <h1>Artikelkatalog für: {{ lst.name }}</h1>
+    <p><a href="{{ url_for('view_list', list_id=lst.id) }}">Zurück zur Liste</a></p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul style="color: red;">
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <table border="1" cellpadding="4" cellspacing="0">
+      <tr>
+        <th>Artikel</th>
+        <th>Menge in aktueller Liste</th>
+        <th>Aktion</th>
+      </tr>
+      {% for row in catalog %}
+        <tr>
+          <td>{{ row.description }}</td>
+          <td style="text-align: center;">{{ row.quantity }}</td>
+          <td>
+            <form method="post" action="{{ url_for('list_catalog_update', list_id=lst.id) }}" style="display:inline;">
+              <input type="hidden" name="description" value="{{ row.description }}">
+              <button type="submit" name="delta" value="-1">-</button>
+              <button type="submit" name="delta" value="1">+</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

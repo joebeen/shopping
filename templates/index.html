@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <title>Einkaufslisten Demo</title>
+  </head>
+  <body>
+    <h1>Einkaufslisten</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul style="color: red;">
+          {% for msg in messages %}
+            <li>{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <h2>Neue Einkaufsliste anlegen</h2>
+    <form method="post" action="{{ url_for('create_list') }}">
+      <input type="text" name="name" placeholder="Name der Liste">
+      <button type="submit">Anlegen</button>
+    </form>
+
+    <h2>Aktive Einkaufslisten</h2>
+    <ul>
+      {% for lst in active_lists %}
+        <li>
+          <a href="{{ url_for('view_list', list_id=lst.id) }}">{{ lst.name }}</a>
+          (angelegt am {{ lst.created_at.strftime("%d.%m.%Y %H:%M") }})
+          <form method="post" action="{{ url_for('archive_list', list_id=lst.id) }}" style="display:inline;">
+            <button type="submit">Archivieren</button>
+          </form>
+          <form method="post" action="{{ url_for('rename_list_route', list_id=lst.id) }}">
+            <input type="text" name="new_name" placeholder="Neuer Listenname">
+            <button type="submit">Umbenennen</button>
+          </form>
+        </li>
+      {% else %}
+        <li>Keine aktiven Einkaufslisten.</li>
+      {% endfor %}
+    </ul>
+
+    <h2>Archivierte Einkaufslisten</h2>
+    <ul>
+      {% for lst in archived_lists %}
+        <li>
+          <a href="{{ url_for('view_list', list_id=lst.id) }}">{{ lst.name }}</a>
+          (archiviert am {{ lst.archived_at.strftime("%d.%m.%Y %H:%M") if lst.archived_at else "-" }})
+          <form method="post" action="{{ url_for('clone_list', list_id=lst.id) }}" style="display:inline;">
+            <button type="submit">Als neue Liste kopieren</button>
+          </form>
+          <form method="post" action="{{ url_for('activate_list', list_id=lst.id) }}" style="display:inline;">
+            <button type="submit">Reaktivieren</button>
+          </form>
+        </li>
+      {% else %}
+        <li>Keine archivierten Einkaufslisten.</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
+

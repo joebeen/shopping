@@ -1,0 +1,16 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: einkauf
+  labels:
+    app: einkauf
+spec:
+  to:
+    kind: Service
+    name: einkauf
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
