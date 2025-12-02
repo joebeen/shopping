@@ -117,9 +117,11 @@ Damit darf der Container real als Root laufen.
 
 ## Kurz zusammengefasst
 Mechanismus	Funktion
-SCCs	verhindern root, Privileged, Capabilities
-UID-Range per Namespace	erzwingt non-root User
-SELinux enforcing	verhindert Breakout, auch bei Misconfig
-Admission Controller	blockiert unsichere PodSpec-Werte
+
+* SCCs	verhindern root, Privileged, Capabilities
+* UID-Range per Namespace	erzwingt non-root User
+* SELinux enforcing	verhindert Breakout, auch bei Misconfig
+* Admission Controller	blockiert unsichere PodSpec-Werte
+
 OpenShift macht aus Sicherheitsgründen alles rootless by default,
 und nur gezielt freigeschaltete Projekte dürfen root nutzen.
